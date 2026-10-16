@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Calculator</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #161821;
+  font-family: Arial, sans-serif;
+}
+.calculator {
+  width: 320px;
+  padding: 20px;
+  background: #242733;
+  border-radius: 28px;
+  box-shadow: 0 15px 40px #0008;
+}
+#display {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 18px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: white;
+  text-align: right;
+  font-size: 38px;
+}
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+button {
+  height: 58px;
+  border: none;
+  border-radius: 18px;
+  background: #373b49;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+}
+button:active { transform: scale(0.95); }
+.utility { background: #555b6b; }
+.operator { background: #ff9f0a; }
+.equal { background: #20b879; }
+.zero { grid-column: span 2; }
+</style>
+</head>
+<body>
+<div class="calculator">
+  <input id="display" value="0" readonly>
+  <div class="buttons">
+    <button class="utility" onclick="clearDisplay()">AC</button>
+    <button class="utility" onclick="backspace()">⌫</button>
+    <button class="utility" onclick="percent()">%</button>
+    <button class="operator" onclick="choose('/')">÷</button>
+
+    <button onclick="digit('7')">7</button>
+    <button onclick="digit('8')">8</button>
+    <button onclick="digit('9')">9</button>
+    <button class="operator" onclick="choose('*')">×</button>
+
+    <button onclick="digit('4')">4</button>
+    <button onclick="digit('5')">5</button>
+    <button onclick="digit('6')">6</button>
+    <button class="operator" onclick="choose('-')">−</button>
+
+    <button onclick="digit('1')">1</button>
+    <button onclick="digit('2')">2</button>
+    <button onclick="digit('3')">3</button>
+    <button class="operator" onclick="choose('+')">+</button>
+
+    <button onclick="sign()">+/-</button>
+    <button class="zero" onclick="digit('0')">0</button>
+    <button onclick="digit('.')">.</button>
+    <button class="equal" onclick="calculate()">=</button>
+  </div>
+</div>
+
+<script>
+const display = document.getElementById('display');
+let current = '0', previous = null, operator = null;
+let fresh = true;
+
+function update() {
+  display.value = current;
+}
+function digit(n) {
+  if (fresh) {
+    current = n === '.' ? '0.' : n;
+    fresh = false;
+  } else if (n !== '.' || !current.includes('.')) {
+    current = current === '0' && n !== '.' ? n : current + n;
+  }
+  update();
+}
+function choose(op) {
+  if (operator && !fresh) calculate();
+  previous = Number(current);
+  operator = op;
+  fresh = true;
+}
+function calculate() {
+  if (operator === null || previous === null) return;
+  const a = previous, b = Number(current);
+  let result;
+  if (operator === '+') result = a + b;
+  if (operator === '-') result = a - b;
+  if (operator === '*') result = a * b;
+  if (operator === '/') {
+    if (b === 0) {
+      current = 'Cannot divide by zero';
+      operator = null;
+      previous = null;
+      fresh = true;
+      update();
+      return;
+    }
+    result = a / b;
+  }
+  current = String(Number(result.toPrecision(10)));
+  previous = null;
+  operator = null;
+  fresh = true;
+  update();
+}
+function clearDisplay() {
+  current = '0';
+  previous = null;
+  operator = null;
+  fresh = true;
+  update();
+}
+function backspace() {
+  if (fresh) return;
+  current = current.length > 1 ? current.slice(0, -1) : '0';
+  update();
+}
+function percent() {
+  current = String(Number(current) / 100);
+  update();
+}
+function sign() {
+  current = String(-Number(current));
+  update();
+}
+</script>
+</body>
+</html>
